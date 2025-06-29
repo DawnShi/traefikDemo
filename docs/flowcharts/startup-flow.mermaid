@@ -1,0 +1,17 @@
+graph TD
+    A[Docker Compose 启动] --> B[创建 traefik-network]
+    B --> C[启动 Traefik 容器]
+    C --> D[读取 traefik.yml 配置]
+    D --> E[连接 Docker socket]
+    E --> F[开始监听容器变化]
+    F --> G[启动其他服务容器]
+    G --> H[检测服务标签]
+    H --> I[自动创建路由规则]
+    I --> J[路由生效]
+    J --> K[服务可通过域名访问]
+    
+    style A fill:#e1f5fe
+    style C fill:#f3e5f5
+    style F fill:#e8f5e8
+    style I fill:#fff3e0
+    style K fill:#e8f5e8 

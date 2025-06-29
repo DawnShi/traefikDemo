@@ -1,0 +1,97 @@
+version: '3.8'
+
+services:
+  # Traefik 反向代理服务
+  traefik:
+    image: traefik:v2.10
+    container_name: traefik
+    command:
+      # 启用API和Dashboard
+      - "--api.dashboard=true"
+      # 启用Docker提供者
+      - "--providers.docker=true"
+      # 暴露Docker socket
+      - "--providers.docker.exposedbydefault=false"
+      # 启用入口点
+      - "--entrypoints.web.address=:80"
+      - "--entrypoints.websecure.address=:443"
+      # 启用日志
+      - "--log.level=INFO"
+      # 启用访问日志
+      - "--accesslog=true"
+    ports:
+      # 暴露HTTP端口
+      - "80:80"
+      # 暴露HTTPS端口
+      - "443:443"
+      # 暴露Traefik Dashboard端口
+      - "8080:8080"
+    volumes:
+      # 挂载Docker socket以发现服务
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      # 挂载Traefik配置文件
+      - ./traefik.yml:/etc/traefik/traefik.yml:ro
+    labels:
+      # 启用Traefik Dashboard
+      - "traefik.enable=true"
+      # 为Dashboard创建路由规则
+      - "traefik.http.routers.dashboard.rule=Host(`traefik.localhost`)"
+      - "traefik.http.routers.dashboard.service=api@internal"
+      - "traefik.http.routers.dashboard.entrypoints=web"
+    networks:
+      - traefik-network
+
+  # 示例Web应用服务1
+  webapp1:
+    image: nginx:alpine
+    container_name: webapp1
+    labels:
+      # 启用Traefik
+      - "traefik.enable=true"
+      # 创建路由规则 - 通过app1.localhost访问
+      - "traefik.http.routers.webapp1.rule=Host(`app1.localhost`)"
+      # 设置入口点
+      - "traefik.http.routers.webapp1.entrypoints=web"
+      # 设置服务端口
+      - "traefik.http.services.webapp1.loadbalancer.server.port=80"
+    networks:
+      - traefik-network
+
+  # 示例Web应用服务2
+  webapp2:
+    image: httpd:alpine
+    container_name: webapp2
+    labels:
+      # 启用Traefik
+      - "traefik.enable=true"
+      # 创建路由规则 - 通过app2.localhost访问
+      - "traefik.http.routers.webapp2.rule=Host(`app2.localhost`)"
+      # 设置入口点
+      - "traefik.http.routers.webapp2.entrypoints=web"
+      # 设置服务端口
+      - "traefik.http.services.webapp2.loadbalancer.server.port=80"
+    networks:
+      - traefik-network
+
+  # 自定义Web应用服务（使用Node.js）
+  custom-app:
+    build: ./custom-app
+    container_name: custom-app
+    labels:
+      # 启用Traefik
+      - "traefik.enable=true"
+      # 创建路由规则 - 通过app.localhost访问
+      - "traefik.http.routers.custom-app.rule=Host(`app.localhost`)"
+      # 设置入口点
+      - "traefik.http.routers.custom-app.entrypoints=web"
+      # 设置服务端口
+      - "traefik.http.services.custom-app.loadbalancer.server.port=3000"
+      # 添加中间件 - 添加自定义头部
+      - "traefik.http.middlewares.custom-headers.headers.customrequestheaders.X-Custom-Header=Traefik-Demo"
+    networks:
+      - traefik-network
+
+# 定义网络
+networks:
+  traefik-network:
+    driver: bridge 

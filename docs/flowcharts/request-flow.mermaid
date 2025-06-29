@@ -1,0 +1,30 @@
+graph LR
+    A[用户请求] --> B[浏览器]
+    B --> C[app1.localhost:80]
+    C --> D[Traefik 入口点]
+    D --> E{路由匹配?}
+    E -->|是| F[应用中间件]
+    E -->|否| G[返回 404]
+    F --> H[转发到后端服务]
+    H --> I[webapp1 容器:80]
+    I --> J[Nginx 服务]
+    J --> K[返回响应]
+    K --> L[Traefik]
+    L --> M[返回给用户]
+    
+    subgraph "路由匹配规则"
+        N["Host(`app1.localhost`)"]
+        O["Entrypoint: web"]
+        P["Service: webapp1"]
+    end
+    
+    E --> N
+    E --> O
+    E --> P
+    
+    style A fill:#e1f5fe
+    style D fill:#f3e5f5
+    style E fill:#fff3e0
+    style H fill:#e8f5e8
+    style M fill:#e8f5e8
+    style G fill:#ffebee 

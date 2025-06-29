@@ -1,0 +1,94 @@
+# Traefik 配置文件
+# 这个文件定义了Traefik的基本配置
+
+# 全局配置
+global:
+  # 检查新版本
+  checkNewVersion: true
+  # 发送使用统计信息
+  sendAnonymousUsage: false
+
+# API和Dashboard配置
+api:
+  # 启用API
+  dashboard: true
+  # 调试模式
+  debug: false
+  # 不安全模式（仅用于开发环境）
+  insecure: true
+
+# 入口点配置
+entryPoints:
+  # HTTP入口点
+  web:
+    address: ":80"
+    # HTTP重定向到HTTPS（可选）
+    # http:
+    #   redirections:
+    #     entrypoint:
+    #       to: websecure
+    #       scheme: https
+  
+  # HTTPS入口点
+  websecure:
+    address: ":443"
+
+# 提供者配置
+providers:
+  # Docker提供者配置
+  docker:
+    # 启用Docker提供者
+    endpoint: "unix:///var/run/docker.sock"
+    # 暴露所有容器（默认）
+    exposedByDefault: false
+    # 网络名称
+    network: "traefik-network"
+    # 使用Swarm模式（如果使用Docker Swarm）
+    swarmMode: false
+    # 使用Swarm模式刷新间隔
+    swarmModeRefreshSeconds: 15
+
+  # 文件提供者配置（可选）
+  file:
+    # 配置文件目录
+    directory: "/etc/traefik/dynamic"
+    # 监视文件变化
+    watch: true
+
+# 日志配置
+log:
+  # 日志级别
+  level: INFO
+  # 日志格式
+  format: json
+
+# 访问日志配置
+accessLog:
+  # 启用访问日志
+  filePath: "/var/log/traefik/access.log"
+  # 日志格式
+  format: json
+  # 缓冲大小
+  bufferingSize: 100
+
+# 指标配置（可选）
+metrics:
+  # Prometheus指标
+  prometheus:
+    # 启用Prometheus指标
+    addEntryPointsLabels: true
+    addServicesLabels: true
+    # 指标路径
+    entryPoint: "metrics"
+
+# Ping配置（健康检查）
+ping:
+  # 启用ping端点
+  entryPoint: "ping"
+
+# 健康检查配置
+healthcheck:
+  # 健康检查间隔
+  interval: "10s"
+  # 超时时间
+  timeout: "5s" 

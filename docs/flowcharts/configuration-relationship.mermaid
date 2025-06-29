@@ -1,0 +1,40 @@
+graph LR
+    subgraph "Docker Compose (docker-compose.yml)"
+        A[Traefik 服务配置]
+        B[应用服务配置]
+        C[网络配置]
+        D[标签配置]
+    end
+    
+    subgraph "Traefik 配置 (traefik.yml)"
+        E[全局配置]
+        F[Docker 提供者配置]
+        G[入口点配置]
+        H[日志配置]
+    end
+    
+    subgraph "关联机制"
+        I[配置文件挂载]
+        J[Docker Socket 挂载]
+        K[网络连接]
+        L[标签解析]
+    end
+    
+    subgraph "运行时"
+        M[Traefik 容器]
+        N[应用容器]
+        O[自动路由创建]
+    end
+    
+    A --> I --> E
+    B --> J --> F
+    C --> K --> M
+    D --> L --> O
+    
+    M --> O
+    N --> O
+    
+    style A fill:#e3f2fd
+    style E fill:#f3e5f5
+    style I fill:#e8f5e8
+    style O fill:#fff3e0 

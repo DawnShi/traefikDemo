@@ -1,0 +1,32 @@
+graph TD
+    A[服务无法访问] --> B{检查容器状态}
+    B -->|容器未启动| C[启动容器]
+    B -->|容器已启动| D{检查网络连接}
+    D -->|网络正常| E{检查标签配置}
+    D -->|网络异常| F[检查网络配置]
+    E -->|标签正确| G{检查端口配置}
+    E -->|标签错误| H[修正标签配置]
+    G -->|端口正确| I{检查域名解析}
+    G -->|端口错误| J[修正端口配置]
+    I -->|域名正常| K{检查 Traefik 日志}
+    I -->|域名异常| L[配置 hosts 文件]
+    K -->|日志正常| M[检查 Traefik Dashboard]
+    K -->|日志异常| N[重启 Traefik 容器]
+    M -->|Dashboard 正常| O[问题解决]
+    M -->|Dashboard 异常| P[检查 Traefik 配置]
+    
+    C --> Q[重新测试]
+    F --> Q
+    H --> Q
+    J --> Q
+    L --> Q
+    N --> Q
+    P --> Q
+    Q --> R{问题解决?}
+    R -->|是| O
+    R -->|否| A
+    
+    style A fill:#ffebee
+    style O fill:#e8f5e8
+    style Q fill:#e1f5fe
+    style R fill:#fff3e0 

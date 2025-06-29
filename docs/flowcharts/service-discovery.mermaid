@@ -1,0 +1,29 @@
+graph TD
+    A[容器启动] --> B[Traefik 检测到新容器]
+    B --> C{容器有 traefik.enable=true 标签?}
+    C -->|是| D[读取容器标签]
+    C -->|否| E[忽略容器]
+    D --> F[解析路由规则]
+    F --> G[解析服务配置]
+    G --> H[解析中间件配置]
+    H --> I[创建 Traefik 路由]
+    I --> J[应用配置到 Traefik]
+    J --> K[路由生效]
+    
+    subgraph "标签示例"
+        L["traefik.enable=true"]
+        M["traefik.http.routers.webapp1.rule=Host(`app1.localhost`)"]
+        N["traefik.http.routers.webapp1.entrypoints=web"]
+        O["traefik.http.services.webapp1.loadbalancer.server.port=80"]
+    end
+    
+    D --> L
+    F --> M
+    G --> N
+    G --> O
+    
+    style A fill:#e1f5fe
+    style C fill:#fff3e0
+    style I fill:#e8f5e8
+    style K fill:#e8f5e8
+    style E fill:#ffebee 
